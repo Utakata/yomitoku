@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "yomitoku": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/app",
+        "run",
+        "yomitoku_mcp"
+      ],
+      "env": {
+        "RESOURCE_DIR": "/app/demo"
+      }
+    }
+  }
+}
