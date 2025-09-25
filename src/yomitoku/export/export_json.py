@@ -1,5 +1,6 @@
 import json
 import os
+from pydantic import BaseModel
 
 from ..utils.misc import save_image
 
@@ -86,6 +87,8 @@ def export_json(
 
 
 def save_json(data, out_path, encoding):
+    if isinstance(data, BaseModel):
+        data = data.model_dump()
     with open(out_path, "w", encoding=encoding, errors="ignore") as f:
         json.dump(
             data,

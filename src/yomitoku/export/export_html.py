@@ -2,8 +2,69 @@ import os
 import re
 from html import escape
 from lxml import etree, html
+import numpy as np
+import jaconv
 
 from ..utils.misc import save_image
+from ..schemas import OCRSchema
+
+
+def _poly2rect(points):
+    """
+    Convert a polygon defined by its corner points to a rectangle.
+    The points should be in the format [[x1, y1], [x2, y2], [x3, y3], [x4, y4]].
+    """
+    points = np.array(points, dtype=int)
+    x_min = points[:, 0].min()
+    x_max = points[:, 0].max()
+    y_min = points[:, 1].min()
+    y_max = points[:, 1].max()
+
+    return [x_min, y_min, x_max, y_max]
+
+
+def to_full_width(text):
+    fw_map = {
+        "\u00a5": "\uffe5",  # ¥ → ￥
+        "\u00b7": "\u30fb",  # · → ・
+        " ": "\u3000",  # 半角スペース→全角スペース
+    }
+
+    TO_FULLWIDTH = str.maketrans(fw_map)
+
+    jaconv_text = jaconv.h2z(text, kana=True, ascii=True, digit=True)
+    jaconv_text = jaconv_text.translate(TO_FULLWIDTH)
+
+    return jaconv_text
+
+
+def create_html_from_ocr_result(ocr_result: OCRSchema, image_size: tuple) -> str:
+    """
+    Generate an HTML string from an OCR result with absolute positioning.
+    """
+    image_width, image_height = image_size
+    words_html = []
+    for word in ocr_result.words:
+        text = escape(word.content)
+        bbox = _poly2rect(word.points)
+        direction = word.direction
+
+        x1, y1, x2, y2 = bbox
+        bbox_width = x2 - x1
+        bbox_height = y2 - y1
+
+        style = f"position: absolute; left: {x1}px; top: {y1}px; width: {bbox_width}px; height: {bbox_height}px; white-space: nowrap; font-size: {bbox_height*0.8}px; color: transparent; letter-spacing: 0;"
+
+        if direction == "vertical":
+            text = to_full_width(text)
+            style += "writing-mode: vertical-rl;"
+
+        words_html.append(f'<div style="{style}">{text}</div>')
+
+    container_style = f"position: relative; width: {image_width}px; height: {image_height}px;"
+    html_content = f'<div style="{container_style}">{"".join(words_html)}</div>'
+
+    return f"<html><body>{html_content}</body></html>"
 
 
 def convert_text_to_html(text):

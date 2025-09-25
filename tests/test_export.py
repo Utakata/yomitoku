@@ -4,17 +4,31 @@ import json
 
 import numpy as np
 
-from yomitoku.export.export_csv import paragraph_to_csv, table_to_csv
+from yomitoku.export.export_csv import (
+    paragraph_to_csv,
+    table_to_csv,
+    convert_csv,
+    save_csv,
+)
 from yomitoku.export.export_html import (
     convert_text_to_html,
     paragraph_to_html,
     table_to_html,
+    convert_html,
+    save_html,
 )
-from yomitoku.export.export_json import paragraph_to_json, table_to_json
+from yomitoku.export.export_json import (
+    paragraph_to_json,
+    table_to_json,
+    convert_json,
+    save_json,
+)
 from yomitoku.export.export_markdown import (
     escape_markdown_special_chars,
     paragraph_to_md,
     table_to_md,
+    convert_markdown,
+    save_markdown,
 )
 
 from yomitoku.schemas import (
@@ -462,7 +476,7 @@ def test_export(tmp_path):
     }
     texts = TextRecognizerSchema(**text_recogition)
     out_path = tmp_path / "tr.json"
-    texts.to_json(out_path)
+    save_json(texts, out_path, encoding="utf-8")
 
     text_detection = {
         "points": [[[0, 0], [10, 10], [20, 20], [30, 30]]],
@@ -470,7 +484,7 @@ def test_export(tmp_path):
     }
     texts = TextDetectorSchema(**text_detection)
     out_path = tmp_path / "td.json"
-    texts.to_json(out_path)
+    save_json(texts, out_path, encoding="utf-8")
 
     words = {
         "points": [[0, 0], [10, 10], [20, 20], [30, 30]],
@@ -482,23 +496,23 @@ def test_export(tmp_path):
 
     words = WordPrediction(**words)
     out_path = tmp_path / "words.json"
-    words.to_json(out_path)
+    save_json(words, out_path, encoding="utf-8")
 
     result = {"words": [words]}
     ocr = OCRSchema(**result)
 
-    out_path = tmp_path / "ocr.yaml"
-    ocr.to_json(out_path)
+    out_path = tmp_path / "ocr.json"
+    save_json(ocr, out_path, encoding="utf-8")
 
-    with open(out_path, "r") as f:
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == ocr.model_dump()
 
     element = {"box": [0, 0, 10, 10], "score": 0.9, "role": None}
     element = Element(**element)
     out_path = tmp_path / "element.json"
-    element.to_json(out_path)
+    save_json(element, out_path, encoding="utf-8")
 
-    with open(out_path, "r") as f:
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == element.model_dump()
 
     layout_parser = {
@@ -509,13 +523,13 @@ def test_export(tmp_path):
 
     layout_parser = LayoutParserSchema(**layout_parser)
     out_path = tmp_path / "layout_parser.json"
-    layout_parser.to_json(out_path)
+    save_json(layout_parser, out_path, encoding="utf-8")
 
-    with open(out_path, "r") as f:
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == layout_parser.model_dump()
 
-    layout_parser.to_json(out_path, ignore_line_break=True)
-    with open(out_path, "r") as f:
+    save_json(layout_parser, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == layout_parser.model_dump()
 
     table_cell = {
@@ -554,8 +568,8 @@ def test_export(tmp_path):
 
     table_cell = TableCellSchema(**table_cell)
     out_path = tmp_path / "table_cell.json"
-    table_cell.to_json(out_path)
-    with open(out_path, "r") as f:
+    save_json(table_cell, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == table_cell.model_dump()
 
     tsr = {
@@ -571,8 +585,8 @@ def test_export(tmp_path):
 
     tsr = TableStructureRecognizerSchema(**tsr)
     out_path = tmp_path / "tsr.json"
-    tsr.to_json(out_path)
-    with open(out_path, "r") as f:
+    save_json(tsr, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == tsr.model_dump()
 
     layout_analyzer = {
@@ -583,8 +597,8 @@ def test_export(tmp_path):
 
     layout_analyzer = LayoutAnalyzerSchema(**layout_analyzer)
     out_path = tmp_path / "layout_analyzer.json"
-    layout_analyzer.to_json(out_path)
-    with open(out_path, "r") as f:
+    save_json(layout_analyzer, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == layout_analyzer.model_dump()
 
     paragraph = {
@@ -596,8 +610,8 @@ def test_export(tmp_path):
     }
     paragraph = ParagraphSchema(**paragraph)
     out_path = tmp_path / "paragraph.json"
-    paragraph.to_json(out_path)
-    with open(out_path, "r") as f:
+    save_json(paragraph, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == paragraph.model_dump()
 
     figure = {
@@ -608,8 +622,8 @@ def test_export(tmp_path):
     }
     figure = FigureSchema(**figure)
     out_path = tmp_path / "figure.json"
-    figure.to_json(out_path)
-    with open(out_path, "r") as f:
+    save_json(figure, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == figure.model_dump()
 
     document_analyzer = {
@@ -623,14 +637,35 @@ def test_export(tmp_path):
 
     document_analyzer = DocumentAnalyzerSchema(**document_analyzer)
     out_path = tmp_path / "document_analyzer.json"
-    document_analyzer.to_json(out_path)
-    with open(out_path, "r") as f:
+    json_data = convert_json(
+        document_analyzer, str(out_path), ignore_line_break=False, img=img, export_figure=True, figure_dir="figures"
+    )
+    save_json(json_data, out_path, encoding="utf-8")
+    with open(out_path, "r", encoding="utf-8") as f:
         assert json.load(f) == document_analyzer.model_dump()
 
-    document_analyzer.to_csv(tmp_path / "document_analyzer.csv", img=img)
-    document_analyzer.to_html(tmp_path / "document_analyzer.html", img=img)
-    document_analyzer.to_markdown(tmp_path / "document_analyzer.md", img=img)
+    # CSV
+    csv_path = tmp_path / "document_analyzer.csv"
+    csv_data = convert_csv(
+        document_analyzer, str(csv_path), ignore_line_break=False, img=img, export_figure=True, export_figure_letter=True, figure_dir="figures"
+    )
+    save_csv(csv_data, str(csv_path), encoding="utf-8")
 
-    assert os.path.exists(tmp_path / "document_analyzer.csv")
-    assert os.path.exists(tmp_path / "document_analyzer.html")
-    assert os.path.exists(tmp_path / "document_analyzer.md")
+    # HTML
+    html_path = tmp_path / "document_analyzer.html"
+    html_data, _ = convert_html(
+        document_analyzer, str(html_path), ignore_line_break=False, export_figure=True, export_figure_letter=True, img=img
+    )
+    save_html(html_data, str(html_path), encoding="utf-8")
+
+    # Markdown
+    md_path = tmp_path / "document_analyzer.md"
+    md_data, _ = convert_markdown(
+        document_analyzer, str(md_path), ignore_line_break=False, img=img, export_figure=True, export_figure_letter=True
+    )
+    save_markdown(md_data, str(md_path), encoding="utf-8")
+
+
+    assert os.path.exists(csv_path)
+    assert os.path.exists(html_path)
+    assert os.path.exists(md_path)

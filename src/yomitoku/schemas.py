@@ -2,9 +2,6 @@ from typing import List, Union
 from pydantic import conlist, Field
 
 from .base import BaseSchema
-from .export import export_csv, export_html, export_markdown, export_json
-
-
 class Element(BaseSchema):
     box: conlist(int, min_length=4, max_length=4) = Field(
         ...,
@@ -204,18 +201,6 @@ class DocumentAnalyzerSchema(BaseSchema):
     )
     words: List[WordPrediction] = Field(..., description="List of recognized words")
     figures: List[FigureSchema] = Field(..., description="List of detected figures")
-
-    def to_html(self, out_path: str, **kwargs):
-        return export_html(self, out_path, **kwargs)
-
-    def to_markdown(self, out_path: str, **kwargs):
-        return export_markdown(self, out_path, **kwargs)
-
-    def to_csv(self, out_path: str, **kwargs):
-        return export_csv(self, out_path, **kwargs)
-
-    def to_json(self, out_path: str, **kwargs):
-        return export_json(self, out_path, **kwargs)
 
 
 class TextRecognizerSchema(BaseSchema):

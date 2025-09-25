@@ -2,6 +2,7 @@ import cv2
 
 from yomitoku import LayoutAnalyzer
 from yomitoku.data.functions import load_pdf
+from yomitoku.export import save_json
 
 if __name__ == "__main__":
     analyzer = LayoutAnalyzer(visualize=True, device="cuda")
@@ -11,5 +12,5 @@ if __name__ == "__main__":
         results, layout_vis = analyzer(img)
 
         # JSON形式で解析結果をエクスポート
-        results.to_json(f"output_{i}.json")
+        save_json(results, f"output_{i}.json", encoding="utf-8")
         cv2.imwrite(f"output_layout_{i}.jpg", layout_vis)

@@ -2,6 +2,7 @@ import cv2
 
 from yomitoku import OCR
 from yomitoku.data.functions import load_pdf
+from yomitoku.export import save_json
 
 if __name__ == "__main__":
     ocr = OCR(visualize=True, device="cuda")
@@ -14,5 +15,5 @@ if __name__ == "__main__":
         results, ocr_vis = ocr(img)
 
         # JSON形式で解析結果をエクスポート
-        results.to_json(f"output_{i}.json")
+        save_json(results, f"output_{i}.json", encoding="utf-8")
         cv2.imwrite(f"output_ocr_{i}.jpg", ocr_vis)

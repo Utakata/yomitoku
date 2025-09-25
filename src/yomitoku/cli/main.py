@@ -125,120 +125,83 @@ def process_single_file(args, analyzer, path, format):
         )
 
         if format == "json":
-            if args.combine:
-                json = convert_json(
-                    result,
-                    out_path,
-                    args.ignore_line_break,
-                    img,
-                    args.figure,
-                    args.figure_dir,
-                )
-            else:
-                json = result.to_json(
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    encoding=args.encoding,
-                    img=img,
-                    export_figure=args.figure,
-                    figure_dir=args.figure_dir,
-                )
+            json_data = convert_json(
+                result,
+                out_path,
+                args.ignore_line_break,
+                img,
+                args.figure,
+                args.figure_dir,
+            )
+            if not args.combine:
+                save_json(json_data, out_path, args.encoding)
 
             format_results.append(
                 {
                     "format": format,
-                    "data": json.model_dump(),
+                    "data": json_data.model_dump(),
                 }
             )
 
         elif format == "csv":
-            if args.combine:
-                csv = convert_csv(
-                    result,
-                    out_path,
-                    args.ignore_line_break,
-                    img,
-                    args.figure,
-                    args.figure_letter,
-                    args.figure_dir,
-                )
-            else:
-                csv = result.to_csv(
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    encoding=args.encoding,
-                    img=img,
-                    export_figure=args.figure,
-                    export_figure_letter=args.figure_letter,
-                    figure_dir=args.figure_dir,
-                )
+            csv_data = convert_csv(
+                result,
+                out_path,
+                args.ignore_line_break,
+                img,
+                args.figure,
+                args.figure_letter,
+                args.figure_dir,
+            )
+            if not args.combine:
+                save_csv(csv_data, out_path, args.encoding)
 
             format_results.append(
                 {
                     "format": format,
-                    "data": csv,
+                    "data": csv_data,
                 }
             )
 
         elif format == "html":
-            if args.combine:
-                html, _ = convert_html(
-                    result,
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    img=img,
-                    export_figure=args.figure,
-                    export_figure_letter=args.figure_letter,
-                    figure_width=args.figure_width,
-                    figure_dir=args.figure_dir,
-                )
-            else:
-                html = result.to_html(
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    img=img,
-                    export_figure=args.figure,
-                    export_figure_letter=args.figure_letter,
-                    figure_width=args.figure_width,
-                    figure_dir=args.figure_dir,
-                    encoding=args.encoding,
-                )
+            html_data, _ = convert_html(
+                result,
+                out_path,
+                ignore_line_break=args.ignore_line_break,
+                img=img,
+                export_figure=args.figure,
+                export_figure_letter=args.figure_letter,
+                figure_width=args.figure_width,
+                figure_dir=args.figure_dir,
+            )
+            if not args.combine:
+                save_html(html_data, out_path, args.encoding)
 
             format_results.append(
                 {
                     "format": format,
-                    "data": html,
+                    "data": html_data,
                 }
             )
 
         elif format == "md":
-            if args.combine:
-                md, _ = convert_markdown(
-                    result,
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    img=img,
-                    export_figure=args.figure,
-                    export_figure_letter=args.figure_letter,
-                    figure_width=args.figure_width,
-                    figure_dir=args.figure_dir,
-                )
-            else:
-                md = result.to_markdown(
-                    out_path,
-                    ignore_line_break=args.ignore_line_break,
-                    img=img,
-                    export_figure=args.figure,
-                    export_figure_letter=args.figure_letter,
-                    figure_width=args.figure_width,
-                    figure_dir=args.figure_dir,
-                    encoding=args.encoding,
-                )
+            md_data, _ = convert_markdown(
+                result,
+                out_path,
+                ignore_line_break=args.ignore_line_break,
+                img=img,
+                export_figure=args.figure,
+                export_figure_letter=args.figure_letter,
+                figure_width=args.figure_width,
+                figure_dir=args.figure_dir,
+            )
+            if not args.combine:
+                save_markdown(md_data, out_path, args.encoding)
 
             format_results.append(
                 {
                     "format": format,
-                    "data": md,
+                    "data": md_data,
                 }
             )
         elif format == "pdf":
