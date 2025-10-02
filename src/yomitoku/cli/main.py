@@ -10,9 +10,14 @@ from ..constants import SUPPORT_OUTPUT_FORMAT
 from ..data.functions import load_image, load_pdf
 from ..document_analyzer import DocumentAnalyzer
 from ..utils.logger import set_logger
-from ..utils.searchable_pdf import create_searchable_pdf
 
-from ..export import save_csv, save_html, save_json, save_markdown
+from ..export import (
+    save_csv,
+    save_html,
+    save_json,
+    save_markdown,
+    create_searchable_pdf,
+)
 from ..export import convert_json, convert_csv, convert_html, convert_markdown
 
 from ..utils.misc import save_image
