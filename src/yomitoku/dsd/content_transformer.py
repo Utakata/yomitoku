@@ -6,12 +6,12 @@ low-entropy, machine-readable formats.
 """
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 import re
 
 from yomitoku.schemas import TableStructureRecognizerSchema
 from yomitoku.export.export_markdown import table_to_md, escape_markdown_special_chars
-from .schemas import EnhancedParagraph, EnhancedFigure
+from .schemas import EnhancedParagraph, EnhancedFigure, LinkSchema
 
 logger = logging.getLogger(__name__)
 
@@ -27,14 +27,93 @@ class ContentTransformer:
     - Paragraphs → cleaned text with proper formatting
     """
 
-    def __init__(self, ignore_line_break: bool = True):
+    def __init__(
+        self,
+        ignore_line_break: bool = True,
+        link_registry: Optional[Dict[str, str]] = None,
+        current_markdown_path: Optional[str] = None,
+    ):
         """
         Initialize the content transformer.
 
         Args:
             ignore_line_break: If True, remove line breaks within paragraphs
+            link_registry: Dictionary mapping anchor_id to Markdown file paths (for internal links)
+            current_markdown_path: Current Markdown file path (for relative link calculation)
         """
         self.ignore_line_break = ignore_line_break
+        self.link_registry = link_registry or {}
+        self.current_markdown_path = current_markdown_path
+
+    def _convert_links_to_markdown(
+        self,
+        content: str,
+        links: List[LinkSchema],
+    ) -> str:
+        """
+        Convert hyperlinks to Markdown format.
+
+        Args:
+            content: Text content
+            links: List of links to convert
+
+        Returns:
+            Content with Markdown links
+        """
+        if not links:
+            return content
+
+        # Sort links by position (if bbox is available) to process from end to start
+        # This prevents offset issues when inserting link markup
+        for link in sorted(links, key=lambda l: l.bbox[0] if l.bbox else 0, reverse=True):
+            if link.link_type == "external" and link.url:
+                # External link: [text](url)
+                link_text = link.text or link.url
+                markdown_link = f"[{link_text}]({link.url})"
+
+                # If we have bbox, try to find and replace the text
+                if link.text and link.text in content:
+                    content = content.replace(link.text, markdown_link, 1)
+                else:
+                    # Append link at the end if we can't find exact position
+                    content += f" {markdown_link}"
+
+            elif link.link_type == "internal":
+                # Internal link: resolve using link_registry
+                target_path = None
+
+                # Try to resolve by anchor_id
+                if link.target_anchor and link.target_anchor in self.link_registry:
+                    target_path = self.link_registry[link.target_anchor]
+
+                # If resolved, create relative link
+                if target_path and self.current_markdown_path:
+                    # Calculate relative path
+                    from pathlib import Path
+                    current_dir = Path(self.current_markdown_path).parent
+                    target = Path(target_path)
+
+                    try:
+                        rel_path = target.relative_to(current_dir)
+                    except ValueError:
+                        # Not in same directory tree, use absolute path
+                        rel_path = target
+
+                    link_text = link.text or "link"
+                    markdown_link = f"[{link_text}]({rel_path})"
+
+                    if link.text and link.text in content:
+                        content = content.replace(link.text, markdown_link, 1)
+                    else:
+                        content += f" {markdown_link}"
+
+                else:
+                    # Can't resolve, log warning
+                    logger.warning(
+                        f"Could not resolve internal link: anchor={link.target_anchor}, page={link.target_page}"
+                    )
+
+        return content
 
     def transform_paragraph(self, paragraph: EnhancedParagraph) -> str:
         """
@@ -53,6 +132,10 @@ class ContentTransformer:
 
         # Escape markdown special characters
         content = escape_markdown_special_chars(content)
+
+        # Convert hyperlinks to Markdown format
+        if hasattr(paragraph, "links") and paragraph.links:
+            content = self._convert_links_to_markdown(content, paragraph.links)
 
         # Handle line breaks
         if self.ignore_line_break:

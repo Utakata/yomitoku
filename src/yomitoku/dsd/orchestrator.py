@@ -16,6 +16,7 @@ from .logical_role_classifier import LogicalRoleClassifier
 from .image_classifier import ImageClassifier
 from .structural_map import StructuralMapBuilder
 from .markdown_generator import TOCMarkdownGenerator
+from .pdf_link_extractor import PDFLinkExtractor
 from .schemas import DSDResult
 from .models.cfg_layoutlmv3 import LayoutLMv3Config
 from .models.cfg_vit import ViTConfig
@@ -84,6 +85,9 @@ class DSDOrchestrator:
             logger.warning(f"Failed to initialize ViT: {e}")
             logger.warning("Will use heuristic-based classification")
             self.image_classifier = ImageClassifier(config=ViTConfig(device=device))
+
+        # PDF Link Extractor
+        self.link_extractor = PDFLinkExtractor()
 
         logger.info("DSD initialization complete")
 
@@ -175,6 +179,35 @@ class DSDOrchestrator:
             f"  Detected: {len(all_paragraphs)} paragraphs, "
             f"{len(all_tables)} tables, {len(all_figures)} figures"
         )
+
+        # ============================================================
+        # PHASE 1.5: Link Extraction (Optional)
+        # ============================================================
+        logger.info("[DSD] Phase 1.5: Extracting hyperlinks from PDF...")
+
+        # Re-open PDF for link extraction
+        pdf_for_links = pdfium.PdfDocument(str(pdf_path))
+        total_links = 0
+
+        for page_num in range(len(pdf_for_links)):
+            page = pdf_for_links[page_num]
+
+            # Extract links from this page
+            links = self.link_extractor.extract_links_from_page(page, page_num)
+            total_links += len(links)
+
+            # Associate links with paragraphs from this page
+            page_paragraphs = [
+                p
+                for p in all_paragraphs
+                if (page_num * 1000) <= p.order < ((page_num + 1) * 1000)
+            ]
+
+            self.link_extractor.associate_links_with_paragraphs(links, page_paragraphs)
+
+        pdf_for_links.close()
+
+        logger.info(f"  Extracted {total_links} hyperlinks from PDF")
 
         # ============================================================
         # PHASE 2: TOC Hierarchy Inference (LayoutLMv3)

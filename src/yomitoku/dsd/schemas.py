@@ -9,6 +9,37 @@ from yomitoku.base import BaseSchema
 from yomitoku.schemas import ParagraphSchema, FigureSchema, TableStructureRecognizerSchema
 
 
+class LinkSchema(BaseSchema):
+    """
+    Hyperlink information extracted from PDF.
+    """
+
+    link_type: str = Field(
+        ...,
+        description="Type of link: 'external' (URL) or 'internal' (anchor/page reference)",
+    )
+    url: Optional[str] = Field(
+        None,
+        description="URL for external links",
+    )
+    target_page: Optional[int] = Field(
+        None,
+        description="Target page number for internal links (0-indexed)",
+    )
+    target_anchor: Optional[str] = Field(
+        None,
+        description="Target anchor ID for internal links",
+    )
+    text: Optional[str] = Field(
+        None,
+        description="Link text (if available)",
+    )
+    bbox: Optional[List[float]] = Field(
+        None,
+        description="Bounding box of the link [x1, y1, x2, y2]",
+    )
+
+
 class EnhancedParagraph(ParagraphSchema):
     """
     Extended paragraph schema with TOC hierarchy information.
@@ -25,6 +56,14 @@ class EnhancedParagraph(ParagraphSchema):
     logical_role: Optional[str] = Field(
         None,
         description="Logical role: 'Chapter_Title', 'Section_Title', 'Paragraph', 'Header', 'Footer'",
+    )
+    anchor_id: Optional[str] = Field(
+        None,
+        description="Anchor ID for this paragraph (used for internal link resolution)",
+    )
+    links: List[LinkSchema] = Field(
+        default_factory=list,
+        description="List of hyperlinks found in this paragraph",
     )
 
 
@@ -72,6 +111,14 @@ class TOCNode(BaseSchema):
         ...,
         description="Sequential order in document",
     )
+    anchor_id: Optional[str] = Field(
+        None,
+        description="Anchor ID for this TOC node (used for internal link resolution)",
+    )
+    markdown_path: Optional[str] = Field(
+        None,
+        description="Relative path to the Markdown file for this node",
+    )
 
 
 class StructuralMap(BaseSchema):
@@ -99,6 +146,10 @@ class StructuralMap(BaseSchema):
     metadata: Dict[str, Any] = Field(
         default_factory=dict,
         description="Additional document metadata",
+    )
+    link_registry: Dict[str, str] = Field(
+        default_factory=dict,
+        description="Registry mapping internal link targets (page_num or anchor_id) to Markdown file paths",
     )
 
 

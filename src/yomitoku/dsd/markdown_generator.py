@@ -48,10 +48,12 @@ class TOCMarkdownGenerator:
         self.output_dir = Path(output_dir)
         self.min_split_level = min_split_level
         self.figure_width = figure_width
-        self.transformer = ContentTransformer(ignore_line_break=ignore_line_break)
+        self.ignore_line_break = ignore_line_break
         self.media_dir = self.output_dir / "media"
         self.figure_counter = 0
         self.page_images = {}  # Store page images for figure extraction
+        self.link_registry = {}  # Will be set from structural_map
+        self.transformer = None  # Will be created with link_registry
 
     def _sanitize_filename(self, name: str) -> str:
         """
@@ -235,6 +237,21 @@ class TOCMarkdownGenerator:
             filename = self._sanitize_filename(node.title) + ".md"
             filepath = parent_dir / filename
 
+            # Update node's markdown_path and link_registry
+            relative_path = filepath.relative_to(self.output_dir)
+            node.markdown_path = str(relative_path)
+
+            # Update link_registry if node has anchor_id
+            if node.anchor_id:
+                self.link_registry[node.anchor_id] = str(relative_path)
+
+            # Create ContentTransformer with link_registry and current path
+            self.transformer = ContentTransformer(
+                ignore_line_break=self.ignore_line_break,
+                link_registry=self.link_registry,
+                current_markdown_path=str(relative_path),
+            )
+
             # Generate content
             content = []
 
@@ -290,6 +307,9 @@ class TOCMarkdownGenerator:
             page_images = {}
 
         logger.info(f"Generating Markdown files in: {self.output_dir}")
+
+        # Initialize link_registry from structural_map
+        self.link_registry = structural_map.link_registry.copy()
 
         # Create output directory
         self.output_dir.mkdir(parents=True, exist_ok=True)

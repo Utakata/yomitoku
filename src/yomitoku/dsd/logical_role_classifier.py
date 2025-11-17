@@ -7,6 +7,7 @@ hierarchy levels from section headings.
 
 import re
 import logging
+import unicodedata
 from typing import List, Optional, Dict, Any
 import torch
 import numpy as np
@@ -232,6 +233,36 @@ class LogicalRoleClassifier:
             logger.error(f"Model classification failed: {e}. Using heuristic fallback.")
             return self._heuristic_classify(paragraph, page_img)
 
+    def _generate_anchor_id(self, title: str) -> str:
+        """
+        Generate a URL-safe anchor ID from a title.
+
+        Args:
+            title: Title text (e.g., "第1章 導入", "1.1 概要")
+
+        Returns:
+            Anchor ID (e.g., "第1章-導入", "1-1-概要")
+        """
+        # Remove leading/trailing whitespace
+        title = title.strip()
+
+        # Replace spaces and special characters with hyphens
+        # Keep alphanumeric, Japanese characters, and some punctuation
+        anchor = re.sub(r'[\s_]+', '-', title)
+        anchor = re.sub(r'[^\w\-\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF]', '', anchor)
+
+        # Remove consecutive hyphens
+        anchor = re.sub(r'-+', '-', anchor)
+
+        # Remove leading/trailing hyphens
+        anchor = anchor.strip('-')
+
+        # If empty after sanitization, use a fallback
+        if not anchor:
+            anchor = "section"
+
+        return anchor
+
     def classify(
         self,
         paragraph: ParagraphSchema,
@@ -258,6 +289,11 @@ class LogicalRoleClassifier:
             else self._heuristic_classify(paragraph, page_img)
         )
 
+        # Generate anchor ID if this is a heading
+        anchor_id = None
+        if classification["toc_level"] is not None and classification["toc_title"]:
+            anchor_id = self._generate_anchor_id(classification["toc_title"])
+
         # Create enhanced paragraph
         enhanced = EnhancedParagraph(
             box=paragraph.box,
@@ -268,6 +304,8 @@ class LogicalRoleClassifier:
             toc_level=classification["toc_level"],
             toc_title=classification["toc_title"],
             logical_role=classification["logical_role"],
+            anchor_id=anchor_id,
+            links=[],  # Will be populated by link extractor
         )
 
         return enhanced

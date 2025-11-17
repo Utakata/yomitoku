@@ -93,6 +93,9 @@ class StructuralMapBuilder:
             # Register the heading content
             block_id = self._register_content("paragraph", heading)
 
+            # Get anchor_id from heading (set by LogicalRoleClassifier)
+            anchor_id = getattr(heading, "anchor_id", None)
+
             # Create new node
             node = TOCNode(
                 level=level,
@@ -101,6 +104,8 @@ class StructuralMapBuilder:
                 children=[],
                 parent_title=None,
                 order=order,
+                anchor_id=anchor_id,
+                markdown_path=None,  # Will be set during Markdown generation
             )
 
             # Find the correct parent
@@ -263,12 +268,16 @@ class StructuralMapBuilder:
             else:
                 document_title = self.source_document
 
+        # Build link registry for internal link resolution
+        link_registry = self._build_link_registry(toc_nodes, all_paragraphs)
+
         # Create structural map
         structural_map = StructuralMap(
             title=document_title,
             source_document=self.source_document,
             nodes=toc_nodes,
             content_registry=self.content_registry,
+            link_registry=link_registry,
             metadata={
                 "total_headings": len(headings),
                 "total_paragraphs": len(regular_paragraphs),
@@ -281,8 +290,46 @@ class StructuralMapBuilder:
         logger.info("Structural Map built successfully")
         logger.info(f"  Root nodes: {len(toc_nodes)}")
         logger.info(f"  Total content blocks: {len(self.content_registry)}")
+        logger.info(f"  Link registry entries: {len(link_registry)}")
 
         return structural_map
+
+    def _build_link_registry(
+        self,
+        toc_nodes: List[TOCNode],
+        all_paragraphs: List[EnhancedParagraph],
+    ) -> Dict[str, str]:
+        """
+        Build a link registry for internal link resolution.
+
+        Maps anchor_id → (to be filled with markdown_path during generation).
+        This will be completed by the Markdown generator.
+
+        Args:
+            toc_nodes: All TOC nodes
+            all_paragraphs: All paragraphs (for extracting anchor IDs)
+
+        Returns:
+            Dictionary mapping anchor_id to placeholder (to be updated)
+        """
+        link_registry = {}
+
+        def collect_anchors(nodes: List[TOCNode]):
+            for node in nodes:
+                if node.anchor_id:
+                    # Placeholder - will be updated with actual markdown path
+                    link_registry[node.anchor_id] = ""
+                if node.children:
+                    collect_anchors(node.children)
+
+        collect_anchors(toc_nodes)
+
+        # Also register paragraph anchor IDs
+        for para in all_paragraphs:
+            if hasattr(para, "anchor_id") and para.anchor_id:
+                link_registry[para.anchor_id] = ""
+
+        return link_registry
 
     def __call__(
         self,

@@ -6,6 +6,7 @@ into low-entropy structured datasets with TOC-based hierarchical organization.
 """
 
 from .schemas import (
+    LinkSchema,
     TOCNode,
     StructuralMap,
     EnhancedParagraph,
@@ -14,8 +15,10 @@ from .schemas import (
 )
 from .structural_map import StructuralMapBuilder
 from .markdown_generator import TOCMarkdownGenerator
+from .orchestrator import DSDOrchestrator
 
 __all__ = [
+    "LinkSchema",
     "TOCNode",
     "StructuralMap",
     "EnhancedParagraph",
@@ -23,4 +26,5 @@ __all__ = [
     "DSDResult",
     "StructuralMapBuilder",
     "TOCMarkdownGenerator",
+    "DSDOrchestrator",
 ]
