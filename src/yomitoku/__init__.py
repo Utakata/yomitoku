@@ -8,6 +8,15 @@ from .table_structure_recognizer import TableStructureRecognizer
 from .text_detector import TextDetector
 from .text_recognizer import TextRecognizer
 
+# DSD module (Document Structure Deconstructor)
+try:
+    from . import dsd
+    from .dsd.orchestrator import DSDOrchestrator
+    DSD_AVAILABLE = True
+except ImportError as e:
+    DSD_AVAILABLE = False
+    dsd = None
+
 __all__ = [
     "OCR",
     "LayoutParser",
@@ -17,4 +26,12 @@ __all__ = [
     "LayoutAnalyzer",
     "DocumentAnalyzer",
 ]
+
+# Add DSD exports if available
+if DSD_AVAILABLE:
+    __all__.extend([
+        "dsd",
+        "DSDOrchestrator",
+    ])
+
 __version__ = version(__package__)
