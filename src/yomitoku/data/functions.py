@@ -106,13 +106,13 @@ def load_pdf(pdf_path: str, dpi=200) -> list[np.ndarray]:
 
     try:
         doc = pypdfium2.PdfDocument(pdf_path)
-        renderer = doc.render(
-            pypdfium2.PdfBitmap.to_pil,
-            scale=dpi / 72,
-        )
-        images = list(renderer)
-        images = [np.array(image.convert("RGB"))[:, :, ::-1] for image in images]
-
+        images = []
+        for i in range(len(doc)):
+            page = doc.get_page(i)
+            bitmap = page.render(scale=dpi / 72)
+            pil_image = bitmap.to_pil()
+            images.append(np.array(pil_image.convert("RGB"))[:, :, ::-1])
+            page.close()
         doc.close()
     except Exception as e:
         raise ValueError(f"Failed to open the PDF file: {pdf_path}") from e
