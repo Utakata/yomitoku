@@ -12,7 +12,7 @@
         <link rel="prev" href="../installation/">
       
       
-        <link rel="next" href="../module/">
+        <link rel="next" href="../extractor/">
       
       
         
@@ -23,11 +23,11 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
-        <title>CLI Usage - YomiToku</title>
+        <title>Document Analyzer - YomiToku</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              CLI Usage
+              Document Analyzer
             
           </span>
         </div>
@@ -291,17 +291,18 @@
     
   
   
-    <li class="md-tabs__item md-tabs__item--active">
-      <a href="./" class="md-tabs__link">
-        
-  
-  
     
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
   
   CLI Usage
 
-      </a>
-    </li>
+        </a>
+      </li>
+    
   
 
       
@@ -318,6 +319,25 @@
     
   
   Module Usage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../table_semantic_parser/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Table Semantic Parser
 
       </a>
     </li>
@@ -525,6 +545,61 @@
   
   
   
+    
+    
+    
+    
+      
+        
+        
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Usage
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    CLI Usage
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
     <li class="md-nav__item md-nav__item--active">
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
@@ -540,7 +615,7 @@
   <span class="md-ellipsis">
     
   
-    CLI Usage
+    Document Analyzer
   
 
     
@@ -558,7 +633,7 @@
   <span class="md-ellipsis">
     
   
-    CLI Usage
+    Document Analyzer
   
 
     
@@ -727,6 +802,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#disabling-recognition-orientation-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabling Recognition Orientation Fallback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#specifying-pages-to-process" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -740,6 +826,70 @@
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../extractor/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extractor
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../schema_generation_prompt/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Schema Generation Prompt
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -760,6 +910,33 @@
     
   
     Module Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../table_semantic_parser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Table Semantic Parser
   
 
     
@@ -1077,6 +1254,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#disabling-recognition-orientation-fallback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabling Recognition Orientation Fallback
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#specifying-pages-to-process" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1255,10 +1443,26 @@
 </tr>
 </tbody>
 </table>
+<h2 id="disabling-recognition-orientation-fallback">Disabling Recognition Orientation Fallback<a class="headerlink" href="#disabling-recognition-orientation-fallback" title="Permanent link">&para;</a></h2>
+<p>By default, when the confidence score of text recognition is low, the system retries recognition with the ROI image rotated 180 degrees and adopts the result with the higher confidence. You can disable this feature using the <code>--disable-rec-orientation-fallback</code> option.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--disable-rec-orientation-fallback
+</span></code></pre></div>
+<p>You can specify the confidence threshold for triggering the fallback using <code>--rec-orientation-fallback-thresh</code>. (Default: 0.75)</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--rec-orientation-fallback-thresh<span class="w"> </span><span class="m">0</span>.6
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="c1">## Excluding Ruby (Furigana) Text</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>You<span class="w"> </span>can<span class="w"> </span>exclude<span class="w"> </span>ruby<span class="w"> </span><span class="o">(</span>furigana<span class="o">)</span><span class="w"> </span>text<span class="w"> </span>from<span class="w"> </span>the<span class="w"> </span>output.<span class="w"> </span>When<span class="w"> </span>the<span class="w"> </span><span class="sb">`</span>--ignore_ruby<span class="sb">`</span><span class="w"> </span>option<span class="w"> </span>is<span class="w"> </span>set,<span class="w"> </span>text<span class="w"> </span>whose<span class="w"> </span>line<span class="w"> </span>height<span class="w"> </span>is<span class="w"> </span>below<span class="w"> </span>a<span class="w"> </span>certain<span class="w"> </span>threshold<span class="w"> </span>relative<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>median<span class="w"> </span>line<span class="w"> </span>height<span class="w"> </span>within<span class="w"> </span>each<span class="w"> </span>paragraph<span class="w"> </span>or<span class="w"> </span>cell,<span class="w"> </span>and<span class="w"> </span>consists<span class="w"> </span>solely<span class="w"> </span>of<span class="w"> </span>hiragana<span class="w"> </span>or<span class="w"> </span>katakana<span class="w"> </span>characters,<span class="w"> </span>is<span class="w"> </span>identified<span class="w"> </span>as<span class="w"> </span>ruby<span class="w"> </span>and<span class="w"> </span>excluded.
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="sb">```</span>bash
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--ignore_ruby
+</span></code></pre></div>
+<p>You can adjust the ruby detection threshold using the <code>--ruby_threshold</code> option (default: 0.5). Increasing the value widens the range of text identified as ruby.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--ignore_ruby<span class="w"> </span>--ruby_threshold<span class="w"> </span><span class="m">0</span>.6
+</span></code></pre></div>
 <h2 id="specifying-pages-to-process">Specifying Pages to Process<a class="headerlink" href="#specifying-pages-to-process" title="Permanent link">&para;</a></h2>
 <p>You can choose to process only specific pages.
 Pages can be specified either as a comma-separated list or as a range using a hyphen.</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--pages<span class="w"> </span><span class="m">1</span>,3-5,10
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>yomitoku<span class="w"> </span><span class="si">${</span><span class="nv">path_data</span><span class="si">}</span><span class="w"> </span>--pages<span class="w"> </span><span class="m">1</span>,3-5,10
 </span></code></pre></div>
 
 
